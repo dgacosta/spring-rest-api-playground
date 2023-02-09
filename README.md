@@ -111,5 +111,43 @@ Next, restTemplate will return a ResponseEntity that we've named response. This 
 
 We can inspect many aspects of the response, including the HTTP Response Status code, which we expect to be 200 OK.
 
+### Spring Data
+
+#### Dependencies
+
+~~~
+implementation 'org.springframework.data:spring-data-jdbc'
+~~~
+Spring Data has many implementations for a variety of relational and non-relational database technologies. Spring Data also has several abstractions on top of those technologies. These are commonly called an Object-Relational Mapping framework, or ORM.
+
+Here we'll elect to use Spring Data JDBC. From the Spring Data JDBC documentation:
+
+Spring Data JDBC aims at being conceptually easy...This makes Spring Data JDBC a simple, limited, opinionated ORM.
+
+~~~
+testImplementation 'com.h2database:h2'
+~~~
+Database management frameworks only work if they have a linked database. H2 is a "very fast, open source, JDBC API" SQL database implemented in Java. It works seamlessly with Spring Data JDBC.
+
+This tells Spring Boot to make the H2 database available only when running tests. Eventually we'll need a database outside of a testing context, but not yet.
+
+~~~
+public interface UserRepository extends CrudRepository<UserModel, Long> {
+}
+~~~
+This is where we tap into the magic of Spring Data and its data repository pattern.
+
+CrudRepository is an interface supplied by Spring Data. When we extend it (or other sub-Interfaces of Spring Data's Repository), Spring Boot and Spring Data work together to automatically generate the CRUD methods that we need to interact with a database.
+
+We'll use one of these CRUD methods, findById, later in the lab.
+
+Spring Data will automatically configure a database by tests if we provide src/test/resources/schema.sql.
+
+~~~
+org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'example.cashcard.CashCardRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+~~~
+
+Clues such as NoSuchBeanDefinitionException, No qualifying bean, and expected at least 1 bean which qualifies as autowire candidate tell us that Spring is trying to find a property configured class to provide during the dependency injection phase of Auto Configuration, but none qualify. We can satisfy this DI requirement by implementing the CrudRepository.
+
 
 

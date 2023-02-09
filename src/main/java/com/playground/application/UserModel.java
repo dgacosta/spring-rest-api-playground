@@ -1,4 +1,6 @@
 package com.playground.application;
 
-public record UserModel(Long id, String name) {
+import org.springframework.data.annotation.Id;
+
+public record UserModel(@Id Long id, String name) {
 }
