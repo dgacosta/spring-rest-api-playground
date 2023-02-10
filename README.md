@@ -149,5 +149,40 @@ org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying b
 
 Clues such as NoSuchBeanDefinitionException, No qualifying bean, and expected at least 1 bean which qualifies as autowire candidate tell us that Spring is trying to find a property configured class to provide during the dependency injection phase of Auto Configuration, but none qualify. We can satisfy this DI requirement by implementing the CrudRepository.
 
+### UserController
 
+~~~
+private UserRepository userRepository;
 
+public UserController(UserRepository userRepository) {
+    this.userRepository = userRepository;
+}
+~~~
+
+~~~
+Optional<UserModel> userOptional = userRepository.findById(requestedId);
+~~~
+We're calling CrudRepository.findById which returns an Optional. This smart object might or might not contain the CashCard for which we're searching. Learn more about Optional here.
+
+~~~
+if (!userOptional.isEmpty()) {
+    return ResponseEntity.ok(userOptional.get());
+} else {
+    return ResponseEntity.notFound().build();
+}
+~~~
+This is how you determine if findById did or did not find the CashCard with the supplied id. If cashCardOptional.isPresent() is true then the repository successfully found the CashCard and we can retrieve it with cashCardOptional.get().  If not, the repository has not found the CashCard.
+
+#### Tests
+
+~~~
+DocumentContext documentContext = JsonPath.parse(response.getBody());
+~~~
+This converts the response String into a JSON-aware object with lots of helper methods.
+
+~~~
+Number id = documentContext.read("$.id");
+assertThat(id).isNotNull();
+assertThat(id).isEqualTo(1);
+~~~
+We expect that when we request a Cash Card with id of 99 a JSON object will be returned with something in the id field. For now assert that the id is not null.
